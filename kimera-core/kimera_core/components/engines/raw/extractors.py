@@ -1,4 +1,6 @@
 """ This module contains different implementations for raw extraction """
+import json
+
 from kimera_core.components.engines.abstract.extractor import Extractor
 from kimera_core.components.tools.utils.generic import ExceptionsUtils
 
@@ -46,3 +48,29 @@ class RawZipExtractor(Extractor):
         from zipfile import ZipFile
         with ZipFile(**kwargs) as z:
             return [z.open(file) for file in z.namelist()]
+
+
+class RawJsonExtractor(Extractor):
+    """ Raw - JSON Extractor
+
+    https://docs.python.org/3/library/json.html
+
+    Deserialize ``fp=file_path`` (a ``.read()``-supporting file-like object containing
+    a JSON document) to a Python object.
+    """
+
+    def read(self, fp_or_sj: str, **kwargs) -> dict:
+        """ Reader of the content of a JSON file
+
+        https://docs.python.org/3/library/json.html#json.load
+
+        :param fp_or_sj: Path of JSON File or String in JSON Format.
+        :param kwargs: Options.
+        return: [result] Reading internal json file.
+        """
+        try:
+            with open(fp_or_sj) as f:
+                json_content = json.load(f)
+            return json_content
+        except Exception:
+            return json.loads(fp_or_sj)
