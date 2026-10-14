@@ -3,7 +3,8 @@
 import importlib
 import logging
 import time
-from typing import Iterable, Optional, Union
+from collections import defaultdict
+from typing import Iterable, Mapping, Optional, Union
 
 from kimera_core.components.tools.utils.constants import KIMERA_LOGGER_NAME
 
@@ -146,7 +147,56 @@ class ExceptionsUtils:
             raise AttributeError(f'Attribute "{attribute_name}" must be defined. Please set it')
 
 
-# Decorators
+class NumberUtils:
+    """ Number utils class """
+
+    @staticmethod
+    def is_number(_object):
+        return isinstance(_object, (int, float, complex))
+
+    @staticmethod
+    def is_int(_object):
+        return isinstance(_object, int)
+
+    @staticmethod
+    def is_float(_object):
+        return isinstance(_object, float)
+
+    @staticmethod
+    def is_complex(_object):
+        return isinstance(_object, complex)
+
+
+class DictUtils:
+    """ Dict utils class """
+
+    @staticmethod
+    def tree():
+        """ Tree Data Structure """
+        return defaultdict(DictUtils.tree)
+
+    @staticmethod
+    def advanced_update(old_object: Mapping, new_object: Mapping):
+        """
+            Method that updates the values of the keys of the old object or object to update with the values of
+        the new object or updated object. In case the keys are not found, they will be created.
+
+        :param old_object: Object to update.
+        :param new_object: Updated object.
+        """
+        for key_to_update, new_value in new_object.items():
+            if isinstance(old_object, Mapping):
+                if isinstance(new_value, Mapping):
+                    key_update = DictUtils.advanced_update(old_object.get(key_to_update, {}), new_value)
+                    old_object[key_to_update] = key_update
+                else:
+                    old_object[key_to_update] = new_object[key_to_update]
+            else:
+                old_object = {key_to_update: new_object[key_to_update]}
+        return old_object
+
+
+# Metaclass
 class SingletonType(type):
     """ Implementation of the Singleton design pattern by metaclass """
 
@@ -158,6 +208,7 @@ class SingletonType(type):
         return cls._instances[cls]
 
 
+# Decorators
 def timing(function):
     """ Decorator to measure the execution time of a function """
 
